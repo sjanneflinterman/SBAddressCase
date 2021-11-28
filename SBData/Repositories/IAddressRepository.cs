@@ -10,6 +10,7 @@ namespace SBData.Repositories
     public interface IAddressRepository
     {
         Task<IEnumerable<Address>> Get();
+        IQueryable<Address> GetQueryable();
         Task<Address> Get(int id);
         Task<Address> Create(Address address);
         Task Update (Address address);

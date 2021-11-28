@@ -1,7 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OData.Formatter;
+using Microsoft.AspNetCore.OData.Query;
+using Microsoft.AspNetCore.OData.Query.Validator;
+using Microsoft.OData;
 using SBData.Entities;
 using SBData.Repositories;
 
@@ -16,11 +21,20 @@ namespace SBCaseAPI.Controllers
         {
             _addressRepository = addressRepository;
         }
-
+        
         [HttpGet]
-        public async Task<IEnumerable<Address>> GetAddresses()
+        public IActionResult GetAddresses(ODataQueryOptions<Address> dataQueryOptions)
         {
-            return await _addressRepository.Get();
+            IQueryable<Address> queryable = _addressRepository.GetQueryable();
+            try
+            {
+                IQueryable oDataQueryable = dataQueryOptions.ApplyTo(queryable);
+                return Ok(oDataQueryable);
+            }
+            catch (ODataException e)
+            {
+                return BadRequest(e.Message);
+            }
         }
 
         [HttpGet("{id}")]

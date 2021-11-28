@@ -43,6 +43,11 @@ namespace SBData.Repositories
             return await _context.Addresses.FindAsync(id);
         }
 
+        public IQueryable<Address> GetQueryable()
+        {
+            return _context.Addresses.AsQueryable();
+        }
+
         public async Task Update(Address address)
         {
             _context.Entry(address).State = EntityState.Modified;

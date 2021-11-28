@@ -1,17 +1,13 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.OData;
 using SBData.Contexts;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using SBData.Repositories;
 
 namespace SBCaseAPI
@@ -29,7 +25,7 @@ namespace SBCaseAPI
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddScoped<IAddressRepository, AddressRepository>();
-            services.AddControllers();
+            services.AddControllers().AddOData(options => options.Filter().Select().OrderBy());
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "SBCaseAPI", Version = "v1" });
