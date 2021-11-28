@@ -37,5 +37,18 @@ namespace SBCaseAPI.Controllers
             var newAddress = await _addressRepository.Create(address);
             return Ok();
         }
+
+        [HttpDelete]
+        public void DeleteAddress(int id)
+        {
+            _addressRepository.Delete(id);
+        }
+
+        [HttpPut]
+        public ActionResult PutAddress([FromBody] Address address)
+        {
+            _addressRepository.Update(address);
+            return Ok();
+        }
     }
 }
