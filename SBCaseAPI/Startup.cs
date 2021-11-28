@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.OData;
 using SBData.Contexts;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using Geolocation;
 using SBData.Repositories;
 
 namespace SBCaseAPI
@@ -24,6 +25,9 @@ namespace SBCaseAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddHttpClient();
+
+            services.AddScoped<IGeolocationService, GeolocationService>();
             services.AddScoped<IAddressRepository, AddressRepository>();
             services.AddControllers().AddOData(options => options.Filter().Select().OrderBy());
             services.AddSwaggerGen(c =>
