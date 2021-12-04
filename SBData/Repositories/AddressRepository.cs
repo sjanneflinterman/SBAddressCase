@@ -1,8 +1,6 @@
 ﻿using SBData.Entities;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SBData.Contexts;
@@ -30,6 +28,7 @@ namespace SBData.Repositories
         {
             var address = await Get(id);
             _context.Addresses.Remove(address);
+
             await _context.SaveChangesAsync();
         }
 

@@ -10,7 +10,6 @@ namespace SBCaseAPI.Controllers
     [ApiController]
     public class GeolocationController : ControllerBase
     {
-
         private readonly IAddressRepository _addressRepository;
         private readonly IGeolocationService _geolocationService;
 

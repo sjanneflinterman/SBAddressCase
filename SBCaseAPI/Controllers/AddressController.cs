@@ -1,8 +1,6 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
-using Microsoft.OData;
 using SBData.Entities;
 using SBData.Repositories;
 
@@ -13,29 +11,39 @@ namespace SBCaseAPI.Controllers
     public class AddressController : ControllerBase
     {
         private readonly IAddressRepository _addressRepository;
+
         public AddressController(IAddressRepository addressRepository)
         {
             _addressRepository = addressRepository;
         }
-        
-        /// <summary>
-        /// Get addresses
-        /// </summary>
-        /// <param name="dataQueryOptions"></param>
-        /// <returns></returns>
 
+        /// <summary>
+        /// Gets addresses with optional query functionality
+        /// </summary>
+        /// <remarks>
+        /// Equals
+        ///  /api/Address?$filter=HouseNumber eq 10
+        ///
+        /// Not equals
+        ///  /api/Address?$filter=HouseNumber ne 10
+        /// 
+        /// Contains
+        ///  /api/Address?$filter=contains(Country, 'land')
+        /// 
+        /// OrderBy
+        ///  /api/Address?$orderby=HouseNumber desc
+        /// 
+        /// Select
+        ///  /api/Address?$select=street
+        /// 
+        /// </remarks>
+        /// <returns></returns>
+        [EnableQuery]
         [HttpGet]
-        public IActionResult GetAddresses(ODataQueryOptions<Address> dataQueryOptions)
+        public IActionResult GetAddresses()
         {
-            try
-            {
-                IQueryable oDataQueryable = dataQueryOptions.ApplyTo(_addressRepository.GetQueryable());
-                return Ok(oDataQueryable);
-            }
-            catch (ODataException e)
-            {
-                return BadRequest(e.Message);
-            }
+            var result = _addressRepository.GetQueryable();
+            return Ok(result);
         }
 
         /// <summary>
@@ -60,7 +68,8 @@ namespace SBCaseAPI.Controllers
             if (!ModelState.IsValid) return BadRequest();
 
             var newAddress = await _addressRepository.Create(address);
-            return Ok();
+
+            return Ok(newAddress);
         }
 
         /// <summary>
@@ -74,7 +83,7 @@ namespace SBCaseAPI.Controllers
         }
 
         /// <summary>
-        /// Put an address
+        /// Update an address
         /// </summary>
         /// <param name="address"></param>
         /// <returns></returns>
