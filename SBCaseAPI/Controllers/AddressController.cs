@@ -18,7 +18,7 @@ namespace SBCaseAPI.Controllers
         }
 
         /// <summary>
-        /// Gets addresses with optional query functionality
+        /// Get addresses with optional query functionality
         /// </summary>
         /// <remarks>
         /// Equals

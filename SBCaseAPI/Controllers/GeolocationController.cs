@@ -40,6 +40,5 @@ namespace SBCaseAPI.Controllers
 
             return Ok(distance);
         }
-
     }
 }
