@@ -1,3 +1,5 @@
+using System;
+using System.IO;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -8,6 +10,7 @@ using Microsoft.AspNetCore.OData;
 using SBData.Contexts;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using System.Reflection;
 using Geolocation;
 using SBData.Repositories;
 
@@ -30,11 +33,21 @@ namespace SBCaseAPI
             services.AddScoped<IGeolocationService, GeolocationService>();
             services.AddScoped<IAddressRepository, AddressRepository>();
             services.AddControllers().AddOData(options => options.Filter().Select().OrderBy());
+            services.AddDbContext<AddressContext>(options => options.UseSqlite("Data source=addresses.db"));
+
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "SBCaseAPI", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Version = "v1",
+                    Title = "Address API",
+                    Description = "Address API case",
+                });
+
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                c.IncludeXmlComments(xmlPath);
             });
-            services.AddDbContext<AddressContext>(options => options.UseSqlite("Data source=addresses.db"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -43,8 +56,14 @@ namespace SBCaseAPI
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "SBCaseAPI v1"));
+                app.UseSwagger(c =>
+                {
+                    c.SerializeAsV2 = true;
+                });
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+                });
             }
 
             app.UseRouting();

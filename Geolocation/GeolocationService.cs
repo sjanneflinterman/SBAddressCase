@@ -16,44 +16,35 @@ namespace Geolocation
     {
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
+        private const string MapQuestUrl = "http://www.mapquestapi.com/directions/v2/route?key=";
 
         public GeolocationService(HttpClient httpClient, IConfiguration configuration)
         {
             _httpClient = httpClient;
             _configuration = configuration;
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(_configuration["MapQuest:APIKey"]);
         }
         
 
         public async Task<double> GetDistance(Address start, Address end)
         {
-            var url = $"{_configuration["MapQuest:URL"]}{_configuration["MapQuest:APIKey"]}";
-
-            url += "&from=";
-            url += GetAddressString(start);
-            url += "&to=";
-            url += GetAddressString(end);
+            var url = BuildUrl(start, end, _configuration["MapQuest:APIKey"]);
 
             try
             {
-                _httpClient.Timeout = TimeSpan.FromMinutes(30);
-
-                var uri = new Uri(url);
-
-                var response = await _httpClient.GetAsync(uri);
+                var response = await _httpClient.GetAsync(url);
 
                 if (!response.IsSuccessStatusCode)
                 {
                     return 0;
                 }
 
-                using var responseContentStream = await response.Content.ReadAsStreamAsync();
+                var responseContentStream = await response.Content.ReadAsStreamAsync();
 
                 try
                 {
                     var convertedResponse = await JsonSerializer.DeserializeAsync<MapQuestApiResponse>(responseContentStream);
-                    var distance =  convertedResponse?.Route?.Distance ?? 0;
-                    return distance;
+
+                    return convertedResponse?.Route?.Distance ?? 0;
                 }
                 catch (JsonException e)
                 {
@@ -70,13 +61,21 @@ namespace Geolocation
 
         }
 
-        private string GetAddressString(Address address)
+        private static string BuildUrl(Address start, Address end, string key)
+        {
+            var url = $"{MapQuestUrl}{key}&from=";
+
+            url += GetAddressString(start);
+            url += "&to=";
+            url += GetAddressString(end);
+
+            return url;
+        }
+
+        private static string GetAddressString(Address address)
         {
             return $"{address.Street} {address.HouseNumber},{address.City}, {address.Country}";
         }
 
     }
-
-
-
 }
